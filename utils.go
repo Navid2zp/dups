@@ -5,10 +5,13 @@ import (
 	"strings"
 )
 
+// CleanPath replaces \ with / in a path
 func CleanPath(path string) string {
 	return strings.Replace(path, "\\", "/", -1)
 }
 
+// GetAlgorithm matches the given string to one of the supported algorithms
+// Returns md5 if a match wasn't found
 func GetAlgorithm(al string) string {
 	switch strings.ToLower(al) {
 	case MD5:
@@ -21,6 +24,7 @@ func GetAlgorithm(al string) string {
 	return MD5
 }
 
+// createBar creates a new progress bar with a custom template
 func createBar(limit int) *pb.ProgressBar {
 	tmpl := `{{ blue "Progress:" }} {{ bar . "[" "=" (cycle . ">") "." "]"}} {{speed . | green }} {{percent . | green}}`
 	bar := pb.ProgressBarTemplate(tmpl).Start64(int64(limit))

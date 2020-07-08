@@ -24,6 +24,7 @@ type FileInfo struct {
 	Info os.FileInfo
 }
 
+// getXXHash return xxhash of a file
 func getXXHash(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -38,6 +39,7 @@ func getXXHash(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum64()), nil
 }
 
+// getMD5 returns md5 hash of a file
 func getMD5(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -52,6 +54,7 @@ func getMD5(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+// getSHA256 returns sha256 hash of a file
 func getSHA256(path string) (string, error) {
 	f, err := os.Open(path)
 	if err != nil {
@@ -66,6 +69,8 @@ func getSHA256(path string) (string, error) {
 	return fmt.Sprintf("%x", h.Sum(nil)), nil
 }
 
+// GetFileHash returns given file hash using the provided algorithm
+// Default: md5
 func GetFileHash(path, algorithm string) (string, error) {
 	switch algorithm {
 	case MD5:
@@ -79,6 +84,8 @@ func GetFileHash(path, algorithm string) (string, error) {
 	}
 }
 
+// GetFiles finds and returns all the files in the given path
+// It will also returns any file in sub-directories if "full=true"
 func GetFiles(root string, full bool) ([]FileInfo, error) {
 	var filesInfos []FileInfo
 	cleanedPath := CleanPath(root)
@@ -112,10 +119,20 @@ func GetFiles(root string, full bool) ([]FileInfo, error) {
 	return filesInfos, nil
 }
 
+// CollectHashes returns hashes for the given files
+// A hash will be the key and a list of FileInfo for files that share the hash as the value
+// "singleThread=false" will force all the function to use one thread only
+// minSize is the minimum file size to scan
+// "flat=true" will tell the function not to print out any data other than the path to duplicate files
+// algorithm is the algorithm to calculate the hash with
 func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm string, flat bool) map[string][]FileInfo {
 	hashes := map[string][]FileInfo{}
-	var lock = sync.RWMutex{}
 
+
+	// You cant't read/write at the same time to a map
+	// readHash and writeHash will read/write the given key/value to/from the map
+	// they make sure that the map is locked while a read or write is happening
+	var lock = sync.RWMutex{}
 	var readHash = func(key string) []FileInfo {
 		lock.RLock()
 		defer lock.RUnlock()
@@ -127,6 +144,8 @@ func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm s
 		defer lock.Unlock()
 		hashes[hash] = files
 	}
+
+	// progress bar to show if "flat=false"
 	var bar *pb.ProgressBar
 	if !flat {
 		bar = createBar(len(files))
@@ -161,6 +180,7 @@ func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm s
 					}
 				}
 				if bar != nil {
+					// tell the progress bar that a process is finished
 					bar.Increment()
 				}
 				wg.Done()
@@ -168,12 +188,16 @@ func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm s
 		}
 		wg.Wait()
 		if bar != nil {
+			// tell the progress bar that all the processes are finished
 			bar.Finish()
 		}
 	}
 	return hashes
 }
 
+// GetDuplicates scans the given map of hashes and finds the one with duplicates
+// It will return a slice containing slices with each slice containing paths to duplicate files
+// It will also returns the total of duplicate files and the total of files that have duplicates
 func GetDuplicates(hashes map[string][]FileInfo) ([][]FileInfo, int, int) {
 	var duplicateFiles [][]FileInfo
 	// total duplicate files
@@ -196,6 +220,9 @@ func GetDuplicates(hashes map[string][]FileInfo) ([][]FileInfo, int, int) {
 	return duplicateFiles, totalFiles, total
 }
 
+// RemoveDuplicates removes duplicates
+// It will keep the first file in a duplicate set and removes any other files in the set
+// It will return the sum of deleted file sizes and total number of deleted files
 func RemoveDuplicates(fileSets [][]FileInfo) (int, int, error) {
 	totalSize := 0
 	totalDeleted := 0
