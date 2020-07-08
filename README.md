@@ -86,12 +86,12 @@ func main()  {
 
 #### Notes:
 
-- Use single core file sizes are big (depending on your disk type).
-- Use XXHash algorithm for fast scanning and MD5/SHA256 for safest scanning or if files count is big.
+- Use single core option (`-s`) if files are big (depending on your disk type).
+- Use XXHash algorithm for fast scanning and MD5/SHA256 for safest scanning or if the number of files is huge.
 
 #### Build from source:
 
-Use `go build -tags multicore` if you are building on Go < 1.5 or you can edit `runtime.GOMAXPROCS()` manually to support multi-core.
+Use `go build -tags multicore` if you are building using Go < 1.5 or edit `runtime.GOMAXPROCS()` manually to support multi-core.
 
 
 License
