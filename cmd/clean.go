@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 NAME HERE navid2zp@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@ import (
 	"os"
 )
 
+// clean command
 var cleanCmd = &cobra.Command{
 	Use:   "clean",
 	Short: "Finds duplicate files in a given path and deletes them.",
@@ -42,9 +43,9 @@ You can add '>> file.txt' at the end to export the result into a text file
 		if !f.IsDir() {
 			log.Fatal("please provide a directory path not a file path")
 		}
-		singleCore, _ := cmd.Flags().GetBool("single-core")
-		fullSearch, _ := cmd.Flags().GetBool("full")
-		minSize, _ := cmd.Flags().GetInt("min-size")
+		singleCore, _ := cmd.Flags().GetBool("single-core") // single core option
+		fullSearch, _ := cmd.Flags().GetBool("full") // full search option
+		minSize, _ := cmd.Flags().GetInt("min-size") // minimum file size to scan
 		flat, _ := cmd.Flags().GetBool("flat")
 		algorithm, err := cmd.Flags().GetString("algorithm")
 		algorithm = dups.GetAlgorithm(algorithm)
@@ -94,17 +95,6 @@ You can add '>> file.txt' at the end to export the result into a text file
 
 func init() {
 	rootCmd.AddCommand(cleanCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// testCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-
-	//findCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	cleanCmd.Flags().BoolP("flat", "f", false, "flat output, no extra info (only prints duplicate files")
 	cleanCmd.Flags().BoolP("full", "r", true, "full search (search in sub-directories too)")
 	cleanCmd.Flags().BoolP("single-core", "s", false, "use single cpu core")

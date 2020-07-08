@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 NAME HERE navid2zp@gmail.com
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -104,17 +104,6 @@ You can add '>> file.txt' at the end to export the result into a text file
 
 func init() {
 	rootCmd.AddCommand(scanCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// testCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-
-	//findCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	scanCmd.Flags().BoolP("flat", "f", false, "flat output, no extra info (only prints duplicate files")
 	scanCmd.Flags().BoolP("full", "r", true, "full search (search in sub-directories too)")
 	scanCmd.Flags().BoolP("single-core", "s", false, "use single cpu core")
