@@ -28,7 +28,7 @@ Flags:
 | flag | Description | 
 |---|---|
 | --algorithm string | algorithm to use (md5/sha256/xxhash) (default "md5")  |
-| -f, --flat |  flat output, no extra info (only prints duplicate files | 
+| -f, --flat |  flat output, no extra info (only prints duplicate files) | 
 | -r, --full |  full search (search in sub-directories too) |
 | --min-size int | minimum file size to scan in bytes (default 10) |
 | -s, --single-core | use single cpu core |
@@ -91,7 +91,7 @@ func main()  {
 
 #### Build from source:
 
-Use `go build -tags multicore` if you are building using Go < 1.5 or edit `runtime.GOMAXPROCS()` manually to support multi-core.
+`go build -tags multicore` if you are building using Go < 1.5 or edit `runtime.GOMAXPROCS()` manually to support multi-core.
 
 
 License
