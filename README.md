@@ -1,3 +1,8 @@
+<p align="center">
+	<img alt="dups" src="https://raw.githubusercontent.com/Navid2zp/dups/master/dups-h.png" />
+</p>
+
+
 # dups
 dups is a CLI tool to find and remove duplicate files using different hash algorithms (MD5, SHA256 and XXHash) with multi-core support.
 
