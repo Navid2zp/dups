@@ -14,11 +14,15 @@ import (
 )
 
 const (
+	// XXHash represents XXHash algorithm
 	XXHash = "xxhash"
+	// MD5 represents XXHash algorithm
 	MD5    = "md5"
+	// SHA256 represents XXHash algorithm
 	SHA256 = "sha256"
 )
 
+// FileInfo represents a file containing os.FileInfo and file path
 type FileInfo struct {
 	Path string
 	Info os.FileInfo
@@ -89,7 +93,7 @@ func GetFileHash(path, algorithm string) (string, error) {
 func GetFiles(root string, full bool) ([]FileInfo, error) {
 	var filesInfos []FileInfo
 	cleanedPath := CleanPath(root)
-	if full {
+	if !full {
 		files, err := ioutil.ReadDir(cleanedPath)
 		if err != nil {
 			return filesInfos, err
@@ -119,15 +123,30 @@ func GetFiles(root string, full bool) ([]FileInfo, error) {
 	return filesInfos, nil
 }
 
-// CollectHashes returns hashes for the given files
+// GroupFiles groups files based on their file size
+// This will help avoid unnecessary hash calculations since files with different file sizes can't be duplicates
+func GroupFiles(files []FileInfo, minSize int) (map[int][]FileInfo, int) {
+	groups := make(map[int][]FileInfo)
+	fileCount := 0
+	for _, file := range files {
+		size := int(file.Info.Size())
+		// Ignore files less than minimum size
+		if size > minSize {
+			groups[size] = append(groups[size], file)
+			fileCount++
+		}
+	}
+	return groups, fileCount
+}
+
+// CollectHashes returns hashes for the given group files if there is more than one file with the same size
 // A hash will be the key and a list of FileInfo for files that share the hash as the value
 // "singleThread=false" will force all the function to use one thread only
 // minSize is the minimum file size to scan
 // "flat=true" will tell the function not to print out any data other than the path to duplicate files
 // algorithm is the algorithm to calculate the hash with
-func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm string, flat bool) map[string][]FileInfo {
+func CollectHashes(fileGroups map[int][]FileInfo, singleThread bool, algorithm string, flat bool, fileCount int) map[string][]FileInfo {
 	hashes := map[string][]FileInfo{}
-
 
 	// You cant't read/write at the same time to a map
 	// readHash and writeHash will read/write the given key/value to/from the map
@@ -148,19 +167,26 @@ func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm s
 	// progress bar to show if "flat=false"
 	var bar *pb.ProgressBar
 	if !flat {
-		bar = createBar(len(files))
+		bar = createBar(fileCount)
 	}
 
 	if singleThread {
-		for _, file := range files {
-			if int(file.Info.Size()) >= minSize {
-				hash, err := GetFileHash(file.Path, algorithm)
-				if err == nil {
-					hashes[hash] = append(hashes[hash], file)
+		for _, group := range fileGroups {
+			// Ignore groups with one file
+			if len(group) > 1 {
+				for _, file := range group {
+					hash, err := GetFileHash(file.Path, algorithm)
+					if err == nil {
+						hashes[hash] = append(hashes[hash], file)
+					}
+					if bar != nil {
+						bar.Increment()
+					}
 				}
-			}
-			if bar != nil {
-				bar.Increment()
+			} else {
+				if bar != nil {
+					bar.Increment()
+				}
 			}
 		}
 		if bar != nil {
@@ -168,23 +194,31 @@ func CollectHashes(files []FileInfo, singleThread bool, minSize int, algorithm s
 		}
 	} else {
 		var wg sync.WaitGroup
-		wg.Add(len(files))
-		for _, file := range files {
-			go func(f FileInfo, bar *pb.ProgressBar) {
-				if int(file.Info.Size()) >= minSize {
-					hash, err := GetFileHash(f.Path, algorithm)
-					if err == nil {
-						oldHashes := readHash(hash)
-						newHashes := append(oldHashes, f)
-						writeHash(hash, newHashes)
-					}
+		wg.Add(fileCount)
+		for _, group := range fileGroups {
+			// Ignore groups with one file
+			if len(group) > 1 {
+				for _, file := range group {
+					go func(f FileInfo, bar *pb.ProgressBar) {
+						hash, err := GetFileHash(f.Path, algorithm)
+						if err == nil {
+							oldHashes := readHash(hash)
+							newHashes := append(oldHashes, f)
+							writeHash(hash, newHashes)
+						}
+						if bar != nil {
+							// tell the progress bar that a process is finished
+							bar.Increment()
+						}
+						wg.Done()
+					}(file, bar)
 				}
+			} else {
+				wg.Done()
 				if bar != nil {
-					// tell the progress bar that a process is finished
 					bar.Increment()
 				}
-				wg.Done()
-			}(file, bar)
+			}
 		}
 		wg.Wait()
 		if bar != nil {

@@ -50,6 +50,10 @@ You can add '>> file.txt' at the end to export the result into a text file
 		flat, _ := cmd.Flags().GetBool("flat")
 		algorithm, err := cmd.Flags().GetString("algorithm")
 		algorithm = dups.GetAlgorithm(algorithm)
+
+		if !flat {
+			fmt.Println("scanning path ...")
+		}
 		files, err := dups.GetFiles(path, fullSearch)
 		if err != nil {
 			log.Fatal("error while listing files:", err)
@@ -57,7 +61,8 @@ You can add '>> file.txt' at the end to export the result into a text file
 		if !flat {
 			fmt.Println(fmt.Sprintf("found %d files. calculating hashes using %s algorithm with multicore: %t", len(files), algorithm, !singleCore))
 		}
-		hashes := dups.CollectHashes(files, singleCore, minSize, algorithm, flat)
+		groups, totalFiles := dups.GroupFiles(files, minSize)
+		hashes := dups.CollectHashes(groups, singleCore, algorithm, flat, totalFiles)
 		if !flat {
 			fmt.Println("scanning for duplicates ...")
 		}

@@ -72,10 +72,14 @@ func main()  {
 	if err != nil {
 		panic(err)
 	}
-	// collect hashes for all files
+
+    // group files based on their file size
+    fileGroups, totalFiles := dups.GroupFiles(files, 128)
+
+	// collect hashes for groups with more than file
 	// singleThread: use a single thread
 	// flatt: don't print the process bar or any other information
-	hashes := dups.CollectHashes(files, false, 1024, dups.XXHash, false)
+	hashes := dups.CollectHashes(fileGroups, false, dups.XXHash, false, totalFiles)
 	duplicates, filesCount, duplicatesCount := dups.GetDuplicates(hashes)
 	fmt.Println("total of files with duplicates:", filesCount)
 	fmt.Println("total of duplicate files:", duplicatesCount)
