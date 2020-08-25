@@ -73,8 +73,8 @@ func main()  {
 		panic(err)
 	}
 
-    // group files based on their file size
-    fileGroups, totalFiles := dups.GroupFiles(files, 128)
+        // group files based on their file size
+        fileGroups, totalFiles := dups.GroupFiles(files, 128)
 
 	// collect hashes for groups with more than file
 	// singleThread: use a single thread
