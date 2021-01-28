@@ -81,8 +81,8 @@ func main()  {
 	// flatt: don't print the process bar or any other information
 	hashes := dups.CollectHashes(fileGroups, false, dups.XXHash, false, totalFiles)
 	duplicates, filesCount, duplicatesCount := dups.GetDuplicates(hashes)
-	fmt.Println("total of files with duplicates:", filesCount)
-	fmt.Println("total of duplicate files:", duplicatesCount)
+	fmt.Println("total number of files with duplicates:", filesCount)
+	fmt.Println("total number of duplicate files:", duplicatesCount)
 
 	freedSize, deletedCount, err := dups.RemoveDuplicates(duplicates)
 	if err != nil {
