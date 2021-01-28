@@ -76,7 +76,7 @@ func main()  {
         // group files based on their file size
         fileGroups, totalFiles := dups.GroupFiles(files, 128)
 
-	// collect hashes for groups with more than file
+	// collect hashes for groups with more than one file
 	// singleThread: use a single thread
 	// flatt: don't print the process bar or any other information
 	hashes := dups.CollectHashes(fileGroups, false, dups.XXHash, false, totalFiles)
