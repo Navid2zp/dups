@@ -48,7 +48,7 @@ You can add '>> file.txt' at the end to export the result into a text file
 		fullSearch, _ := cmd.Flags().GetBool("full")
 		minSize, _ := cmd.Flags().GetInt("min-size")
 		flat, _ := cmd.Flags().GetBool("flat")
-		algorithm, err := cmd.Flags().GetString("algorithm")
+		algorithm, _ := cmd.Flags().GetString("algorithm")
 		algorithm = dups.GetAlgorithm(algorithm)
 
 		if !flat {
