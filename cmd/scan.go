@@ -17,12 +17,14 @@ package main
 
 import (
 	"bufio"
-	"dups"
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
 	"strings"
+
+	"github.com/spf13/cobra"
+
+	"github.com/Navid2zp/dups"
 )
 
 var scanCmd = &cobra.Command{
