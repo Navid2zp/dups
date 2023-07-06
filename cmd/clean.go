@@ -16,7 +16,7 @@ limitations under the License.
 package main
 
 import (
-	"dups"
+	"github.com/Navid2zp/dups"
 	"fmt"
 	"github.com/spf13/cobra"
 	"log"
