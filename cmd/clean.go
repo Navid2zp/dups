@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,11 +16,12 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/Navid2zp/dups"
 	"fmt"
-	"github.com/spf13/cobra"
 	"log"
 	"os"
+
+	"github.com/Navid2zp/dups/dups"
+	"github.com/spf13/cobra"
 )
 
 // clean command
@@ -44,8 +45,8 @@ You can add '>> file.txt' at the end to export the result into a text file
 			log.Fatal("please provide a directory path not a file path")
 		}
 		singleCore, _ := cmd.Flags().GetBool("single-core") // single core option
-		fullSearch, _ := cmd.Flags().GetBool("full") // full search option
-		minSize, _ := cmd.Flags().GetInt("min-size") // minimum file size to scan
+		fullSearch, _ := cmd.Flags().GetBool("full")        // full search option
+		minSize, _ := cmd.Flags().GetInt("min-size")        // minimum file size to scan
 		flat, _ := cmd.Flags().GetBool("flat")
 		algorithm, err := cmd.Flags().GetString("algorithm")
 		algorithm = dups.GetAlgorithm(algorithm)
